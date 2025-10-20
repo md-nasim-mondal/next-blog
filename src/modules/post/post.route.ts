@@ -3,8 +3,8 @@ import { PostController } from "./post.controller";
 
 const router = express.Router();
 
+router.get("/stat", PostController.getBlogStat)
 router.post("/", PostController.createPost);
-
 router.get("/", PostController.getAllPosts);
 router.get("/:id", PostController.getPostById);
 router.patch("/:id", PostController.updatePost);

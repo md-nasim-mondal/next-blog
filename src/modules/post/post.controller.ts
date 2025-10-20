@@ -15,10 +15,18 @@ const getAllPosts = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const search = (req.query.search as string) || "";
-    const isFeatured = req.query.isFeatured ? req.query.isFeatured === "true" : undefined;
+    const isFeatured = req.query.isFeatured
+      ? req.query.isFeatured === "true"
+      : undefined;
     const tags = req.query.tags ? (req.query.tags as string).split(",") : [];
 
-    const result = await PostService.getAllPosts({ page, limit, search, isFeatured, tags });
+    const result = await PostService.getAllPosts({
+      page,
+      limit,
+      search,
+      isFeatured,
+      tags,
+    });
 
     res.json(result);
   } catch (err) {
@@ -42,10 +50,20 @@ const deletePost = async (req: Request, res: Response) => {
   res.json({ message: "Post deleted" });
 };
 
+const getBlogStat = async (req: Request, res: Response) => {
+  try {
+    const result = await PostService.getBlogStat();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch stats", details: error });
+  }
+};
+
 export const PostController = {
   createPost,
   getAllPosts,
   getPostById,
   updatePost,
   deletePost,
+  getBlogStat,
 };
