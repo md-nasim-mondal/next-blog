@@ -49,17 +49,49 @@ const getAllPosts = async ({
     skip,
     take: limit,
     where,
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
-  return result;
+
+  const total = await prisma.post.count({ where });
+
+  return {
+    data: result,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 const getPostById = async (id: number) => {
-  const result = await prisma.post.findUnique({
-    where: { id },
-    include: { author: true },
-  });
+  return await prisma.$transaction(async (tx) => {
+    await tx.post.update({
+      where: { id },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
+    });
 
-  return result;
+    return await tx.post.findUnique({
+      where: { id },
+      include: { author: true },
+    });
+  });
 };
 
 const updatePost = async (id: number, data: Partial<any>) => {
